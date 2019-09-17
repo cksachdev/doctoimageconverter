@@ -9,10 +9,19 @@ import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.io.File;
 
+import org.jodconverter.OfficeDocumentConverter;
+import org.jodconverter.office.LocalOfficeManager;
+import org.jodconverter.office.OfficeException;
+import org.jodconverter.office.OfficeManager;
 import ntp.utils.IniFile;
 
 public class DocToImageConverter {
+	
+	private static volatile OfficeManager officeManager;
+	@SuppressWarnings("deprecation")
+	private static volatile OfficeDocumentConverter converter;
 	
 	public static void main(String args[]) throws Throwable {
 		
@@ -47,16 +56,16 @@ public class DocToImageConverter {
 		logger.info("Output image format (jpg or png):" + strOutputFormat );
 		
 		ArrayList<File> inputfiles = new ArrayList<File>();
-		inputfiles =  listFilesForFolder(new File(strInputFolder), inputfiles);
+		inputfiles =  listFilesForFolder(logger, new File(strInputFolder), inputfiles, strInputFolder, strOutputFolder);
 		
-		DocToJpeg.startOfficeManager(strOfficePath);
+		startOfficeManager(strOfficePath);
 		
 		for(int iFilesCount=0; iFilesCount<inputfiles.size(); iFilesCount++) 
 		{
 			File ipfile = (File)inputfiles.get(iFilesCount);			
 			
-			if(ipfile.getName().endsWith(".doc"))
-			{
+//			if(ipfile.getName().endsWith(".doc"))
+//			{
 				String strFileName = ipfile.getName().substring(0, ipfile.getName().lastIndexOf("."));
 				
 				String strOutputLoc = ipfile.getAbsolutePath().substring(0, ipfile.getAbsolutePath().lastIndexOf(File.separator));
@@ -68,34 +77,63 @@ public class DocToImageConverter {
 					logger.info(iFilesCount+"/"+ inputfiles.size() + " --> Output File Path:: " + opFile.getAbsolutePath());
 					
 					if(!opFile.exists())
-						DocToJpeg.convert(ipfile, opFile);
+						convert(ipfile, opFile);
 				}
 				catch(Exception ex)
 				{
 					logger.info("Exception during converting " + ipfile.getAbsolutePath() );
 				}
-			}
-			else if(ipfile.isDirectory())
-			{
-				String strOutputSubFolder = ipfile.getAbsolutePath().replace(strInputFolder, strOutputFolder);
-				File fOutputLocDir = new File(strOutputSubFolder);
-		        if(!fOutputLocDir.exists()) fOutputLocDir.mkdirs();
-		        logger.info("created output folder : " + fOutputLocDir.getAbsolutePath());
-			}
+//			}
 		}
 		
-		DocToJpeg.stopOfficeManager();
+		stopOfficeManager();
 		
 	}
 	
-	private static ArrayList<File> listFilesForFolder(final File folder, ArrayList<File> zipfiles) {
+	private static ArrayList<File> listFilesForFolder(Logger logger, final File folder, ArrayList<File> zipfiles, String strInputFolder, String strOutputFolder) {
 	    for (final File fileEntry : folder.listFiles()) {
-	    	zipfiles.add(fileEntry);
-	        if (fileEntry.isDirectory()) {
-	            listFilesForFolder(fileEntry, zipfiles);
+	    	if(fileEntry.isFile() && fileEntry.getName().endsWith(".doc"))
+	    	{
+	    		zipfiles.add(fileEntry);
+	    	}
+	    	else if (fileEntry.isDirectory()) {
+	        	String strOutputSubFolder = fileEntry.getAbsolutePath().replace(strInputFolder, strOutputFolder);
+				File fOutputLocDir = new File(strOutputSubFolder);
+		        if(!fOutputLocDir.exists()) fOutputLocDir.mkdirs();
+		        logger.info("created output folder : " + fOutputLocDir.getAbsolutePath());
+		        
+	            listFilesForFolder(logger, fileEntry, zipfiles, strInputFolder, strOutputFolder);
 	        } 
 	    }
 	    return zipfiles;
 	}
 	
+	@SuppressWarnings("deprecation")
+	public static void startOfficeManager(String strOfficePath) throws Throwable {
+        try {
+        	
+        	officeManager = LocalOfficeManager.builder().install().officeHome(new File(strOfficePath))
+                    .portNumbers(8100, 8101, 8102, 8103, 8104).build();
+                    
+            officeManager.start();
+            
+            converter = new OfficeDocumentConverter(officeManager);
+            
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+
+    @SuppressWarnings("deprecation")
+	public static void convert(File inputFile, File outputFile) throws Throwable {
+
+        converter.convert(inputFile, outputFile);
+    }
+
+    public static void stopOfficeManager() throws OfficeException{
+        officeManager.stop();
+    }
 }
