@@ -49,14 +49,17 @@ public class DocToImageConverter {
 		String strInputFolder = configFile.getString("CONFIG", "input_folder", "");
 		logger.info("Folder location of input files to convert:" + strInputFolder );
 		
+		String strInputFormat = configFile.getString("CONFIG", "input_format", "");
+		logger.info("Input format:" + strInputFormat );
+		
 		String strOutputFolder = configFile.getString("CONFIG", "output_folder", "");
 		logger.info("Output folder location:" + strOutputFolder );
 		
 		String strOutputFormat = configFile.getString("CONFIG", "output_format", "");
-		logger.info("Output image format (jpg or png):" + strOutputFormat );
+		logger.info("Output format:" + strOutputFormat );
 		
 		ArrayList<File> inputfiles = new ArrayList<File>();
-		inputfiles =  listFilesForFolder(logger, new File(strInputFolder), inputfiles, strInputFolder, strOutputFolder);
+		inputfiles =  listFilesForFolder(logger, new File(strInputFolder), strInputFormat, inputfiles, strInputFolder, strOutputFolder);
 		
 		startOfficeManager(strOfficePath);
 		
@@ -90,9 +93,9 @@ public class DocToImageConverter {
 		
 	}
 	
-	private static ArrayList<File> listFilesForFolder(Logger logger, final File folder, ArrayList<File> zipfiles, String strInputFolder, String strOutputFolder) {
+	private static ArrayList<File> listFilesForFolder(Logger logger, final File folder, String strInputFormat, ArrayList<File> zipfiles, String strInputFolder, String strOutputFolder) {
 	    for (final File fileEntry : folder.listFiles()) {
-	    	if(fileEntry.isFile() && fileEntry.getName().endsWith(".doc"))
+	    	if(fileEntry.isFile() && fileEntry.getName().endsWith(strInputFormat.toLowerCase()))
 	    	{
 	    		zipfiles.add(fileEntry);
 	    	}
@@ -102,7 +105,7 @@ public class DocToImageConverter {
 		        if(!fOutputLocDir.exists()) fOutputLocDir.mkdirs();
 		        logger.info("created output folder : " + fOutputLocDir.getAbsolutePath());
 		        
-	            listFilesForFolder(logger, fileEntry, zipfiles, strInputFolder, strOutputFolder);
+	            listFilesForFolder(logger, fileEntry, strInputFormat, zipfiles, strInputFolder, strOutputFolder);
 	        } 
 	    }
 	    return zipfiles;
