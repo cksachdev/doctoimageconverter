@@ -9,12 +9,12 @@ import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import java.io.File;
 
 import org.jodconverter.OfficeDocumentConverter;
 import org.jodconverter.office.LocalOfficeManager;
 import org.jodconverter.office.OfficeException;
 import org.jodconverter.office.OfficeManager;
+
 import ntp.utils.IniFile;
 
 public class DocToImageConverter {
@@ -74,7 +74,7 @@ public class DocToImageConverter {
 				try {
 					File opFile = new File(strOutputLoc+File.separator+strFileName+"."+strOutputFormat);
 					
-					logger.info(iFilesCount+"/"+ inputfiles.size() + " --> Output File Path:: " + opFile.getAbsolutePath());
+					logger.info((iFilesCount+1)+"/"+ inputfiles.size() + " --> Output File Path:: " + opFile.getAbsolutePath());
 					
 					if(!opFile.exists())
 						convert(ipfile, opFile);
