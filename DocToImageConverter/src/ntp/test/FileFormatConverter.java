@@ -17,7 +17,7 @@ import org.jodconverter.office.OfficeManager;
 
 import ntp.utils.IniFile;
 
-public class DocToImageConverter {
+public class FileFormatConverter {
 	
 	private static volatile OfficeManager officeManager;
 	@SuppressWarnings("deprecation")
@@ -25,7 +25,7 @@ public class DocToImageConverter {
 	
 	public static void main(String args[]) throws Throwable {
 		
-		Logger logger = Logger.getLogger("DocToImageConverter");  
+		Logger logger = Logger.getLogger("FileFormatConverter");  
 	    FileHandler fh;   
 		
 		Path currentRelativePath = Paths.get("");
@@ -34,7 +34,7 @@ public class DocToImageConverter {
 		String dateInString = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").format(new Date());
 		dateInString = dateInString.replaceAll(":", "-");
         // This block configure the logger with handler and formatter  
-        fh = new FileHandler(strFilePath+"/Log/DocToImageConverterLog_"+dateInString+".log");  
+        fh = new FileHandler(strFilePath+"/Log/FileFormatConverter_Log_"+dateInString+".log");  
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();  
         fh.setFormatter(formatter); 

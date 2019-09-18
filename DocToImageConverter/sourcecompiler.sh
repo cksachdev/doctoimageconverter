@@ -6,7 +6,7 @@ export CLASSPATH=.:${LIB_PATH}/Custom.jar:${LIB_PATH}/commons-io-2.6.jar:${LIB_P
 echo $CLASSPATH
 
 javac -d classes ./src/ntp/utils/IniFile.java
-javac -d classes ./src/ntp/test/DocToImageConverter.java
+javac -d classes ./src/ntp/test/FileFormatConverter.java
 
 cd classes
 jar -cvf Custom.jar ntp
